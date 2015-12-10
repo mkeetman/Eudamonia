@@ -29,6 +29,7 @@ def take_survey(request, survey_id=None):
 def submit_survey(request, survey_id):
     collection = Collection(date=timezone.now(), athlete=request.user.athlete, survey=Survey.objects.get(pk=survey_id))
     collection.save()
+
     questions = Survey.objects.get(pk=survey_id).question_set.all()
     for question in questions:
         collection.answer_set.create(choice=Choice.objects.get(pk=request.POST['question_' + str(question.id)]))
