@@ -21,8 +21,9 @@
 <body>
     <div class="container">
         <h1>{{ survey.survey_name }}</h1>
-        <div class="panel-group" id="accordion">
-            <form role="form" method="post" action="{% url 'wellness:submit_survey' survey.id %}">
+        <form role="form" method="post" action="{% url 'wellness:submit_survey' survey.id %}">
+            <div class="panel-group" id="accordion">
+
                 {% csrf_token %}
                 {% for question in survey.question_set.all %}
                 <div class="panel panel-default">
@@ -35,8 +36,12 @@
                     <div class="panel-collapse collapse {% if forloop.first %}in{% endif %}" id="question-{{ question.id }}">
                         <div class="panel-body">
                             {% for choice in question.choice_set.all %}
-                            <label class="radio" for="choice{{ forloop.counter }}" >
-                                <input type="radio" name="question_{{question.id}}" id="choice{{ forloop.counter }}" value="{{ choice.id }}"/>{{ choice.choice_text }}</label>
+                            <div class="radio"><label class="radio" for="choice{{ forloop.counter }}" >
+                                <input type="radio" data-toggle="collapse" data-target="#question-{{question.id|add:'1'}}"
+                                       data-parent="#accordion" name="question_{{question.id}}" id="choice{{ forloop.counter }}"
+                                       value="{{ choice.id }}"/>
+                                {{ choice.choice_text }}</label>
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
@@ -45,8 +50,8 @@
 
                 <input class="btn btn-default" type="submit" value="Submit">
 
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </body>
 </html>
