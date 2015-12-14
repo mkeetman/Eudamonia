@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load wellness_extras %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,13 +9,19 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <style>
-        #wellness-graph { width: 450px; height: 200px; }
+        #wellness-graph { width: 600px; height: 300px; }
+        #choices-graph { width: 600px; height:300px
     </style>
 </head>
 <body>
 
-    <div id="wellness-graph">
-    </div>
+    <div id="wellness-graph"></div>
+    <div class="text-center" id="wellness-legend"></div>
+    <div id="choices-graph"></div>
+    <div class="text-center" id="choices-legend"></div>
+
+
+
 
 
 
@@ -26,14 +33,51 @@
     <script language="JavaScript">
 
         $(document).ready(function () {
-            data = {{ data|safe }};
+            data = {label: 'Wellness', data: {{ data|safe }}};
+
+            {% for key in choice_data %}
+                {{ key|underscore }} = {label: '{{ key }}',
+                                        data: {{ choice_data|get_item:key }},
+                                       };
+            {% endfor %}
+
             $.plot($("#wellness-graph"), [data], {
                 xaxis: {
                     mode: "time",
                     timezone: "browser",
                     minTickSize: [1, "day"],
+                },
+                legend: {
+                    container: $("#wellness-legend"),
+                }
+
+            });
+
+            $.plot($("#choices-graph"), [{% for key in choice_data %}
+                {% if forloop.last %}
+                    {{ key|underscore }}
+                {% else %}
+                    {{ key|underscore }},
+                {% endif %}{% endfor %}], {
+                xaxis: {
+                    mode: "time",
+                    timezone: "browser",
+                    minTickSize: [1, "day"],
+                },
+                legend: {
+                    container: $("#choices-legend"),
+                    noColumns: {{ choice_data|length }},
+                },
+                series: {
+                    curvedLines: {
+                        active: true,
+                        apply: true,
+                        fit: true,
+                        fitPointDist: 0.0001,
+                    }
                 }
             });
+
         });
 
     </script>

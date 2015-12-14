@@ -44,15 +44,24 @@ def submit_survey(request, survey_id):
 
 @login_required()
 def graph_wellness(request):
-    collections = Collection.objects.filter(athlete=request.user.athlete)
-    data = []
+    collections = Collection.objects.filter(athlete=request.user.athlete).order_by('-date')
+    wellness_data = []
+    choice_data = {}
 
     for collection in collections:
         score = 0
         for answer in collection.answer_set.all():
             score += answer.choice.choice_value
 
-        data.append([int(time.mktime(collection.date.timetuple())) * 1000, score])
+            if answer.choice.question.question_text in choice_data:
+                choice_data[answer.choice.question.question_text].append(
+                    [int(time.mktime(collection.date.timetuple())) * 1000, answer.choice.choice_value])
+            else:
+                choice_data[answer.choice.question.question_text] = [[int(time.mktime(collection.date.timetuple())) * 1000,
+                                                           answer.choice.choice_value]]
 
-    context = {'data': json.dumps(data)}
+        wellness_data.append([int(time.mktime(collection.date.timetuple())) * 1000, score])
+
+    context = {'data': json.dumps(wellness_data),
+               'choice_data': choice_data}
     return render(request, 'wellness/wellness_graph.html', context)
