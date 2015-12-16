@@ -19,9 +19,10 @@ from django.contrib import admin
 from dashboard import views as dashboard_views
 
 urlpatterns = [
-    url(r'^register', dashboard_views.user_registration, name='register'),
-    url(r'^resister-step-2', dashboard_views.process_registration, name='process_registration'),
-    url(r'^register-finish', dashboard_views.finish_registration, name='finish_registration'),
+    url(r'^$', dashboard_views.index, name='index'),
+    url(r'^register/$', dashboard_views.user_registration, name='register'),
+    url(r'^register-step-2/$', dashboard_views.process_registration, name='process_registration'),
+    url(r'^register-finish/$', dashboard_views.finish_registration, name='finish_registration'),
     url(r'^admin/', admin.site.urls),
     url(r'^wellness/', include('wellness.urls')),
     url('^accounts/', include('django.contrib.auth.urls')),

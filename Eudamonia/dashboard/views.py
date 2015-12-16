@@ -1,10 +1,39 @@
+import json
+import time
 from django.shortcuts import render
-from django.contrib.auth import login
-from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
 
-from wellness.models import Athlete, Survey
+from wellness.models import Survey, Collection
+from .models import Athlete
 
 # Create your views here.
+
+@login_required()
+def index(request):
+
+    collections = Collection.objects.filter(athlete=request.user.athlete).order_by('-date')
+    wellness_data = []
+    choice_data = []
+
+    for collection in collections:
+        score = 0
+
+        row = {}
+        row['col_time'] = int(time.mktime(collection.date.timetuple())) * 1000
+
+        for answer in collection.answer_set.all():
+            score += answer.choice.choice_value
+            row[answer.choice.question.question_text] = answer.choice.choice_value
+
+        wellness_data.append({'col_time': int(time.mktime(collection.date.timetuple())) * 1000, 'score': score})
+        choice_data.append(row)
+
+    context = {'wellness': json.dumps(wellness_data),
+               'choice': json.dumps(choice_data)}
+
+    return render(request, 'dashboard/dashboard-home.html', context)
 
 
 def user_registration(request):
@@ -12,19 +41,28 @@ def user_registration(request):
 
 
 def process_registration(request):
-    user = User.objects.create_user(request.POST['username'],
-                                    request.POST['password'],
-                                    request.POST['email'],
+    user = User.objects.create_user(username=request.POST['username'],
+                                    password=request.POST['password'],
+                                    email=request.POST['email'],
                                     first_name=request.POST['firstname'],
                                     last_name=request.POST['lastname'])
+    user.groups.add(Group.objects.get(name='Athletes'))
+    user.save()
 
-    login(request, user)
+    auth_user = authenticate(username=request.POST['username'], password=request.POST['password'])
 
-    return render(request, 'dashboard/user_profile_set.html', {'surveys': Survey.object.all()})
+    if auth_user is None:
+        return "Something went wrong with the login process"
+    else:
+        if user.is_active:
+            login(request, auth_user)
+            return render(request, 'dashboard/user_profile_set.html', {'surveys': Survey.objects.all()})
+        else:
+            return "User isn't active :("
 
 
 def finish_registration(request):
 
-    athlete = Athlete.objects.create()
+    athlete = Athlete.objects.create(default_survey=Survey.objects.get(pk=request.POST['survey']), user=request.user)
 
-    return "Thanks for registering " + request.user.first_name
+    return "Thanks for registering " + athlete.user.first_name

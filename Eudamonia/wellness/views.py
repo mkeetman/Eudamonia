@@ -39,7 +39,8 @@ def submit_survey(request, survey_id):
     for answer in collection.answer_set.all():
         score += answer.choice.choice_value
 
-    return render(request, 'wellness/survey_result.html', {'score': score})
+    return render(request, 'wellness/survey_result.html', {'score': score,
+                                                           'collection': collection,})
 
 
 @login_required()
@@ -65,3 +66,8 @@ def graph_wellness(request):
     context = {'data': json.dumps(wellness_data),
                'choice_data': choice_data}
     return render(request, 'wellness/wellness_graph.html', context)
+
+@login_required()
+def collection_detail(request, collection_id):
+    collection = get_object_or_404(Collection, pk=collection_id)
+    pass

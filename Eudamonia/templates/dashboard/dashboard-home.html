@@ -1,0 +1,82 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block head %}
+  <!-- Morris Charts CSS -->
+    <link href="{% static 'bower_components/morrisjs/morris.css' %}" rel="stylesheet">
+{% endblock%}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-title">Eudamonia Dashboard</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-line-chart fa-fw"></i>
+                Wellness
+            </div>
+            <div class="panel-body">
+                <div id="wellness-chart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-area-chart fa-fw"></i>
+                Choice Breakdown
+            </div>
+            <div class="panel-body">
+                <div id="choices-chart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+    <!-- Morris Charts JavaScript -->
+    <script src="{% static 'bower_components/raphael/raphael-min.js' %}"></script>
+    <script src="{% static 'bower_components/morrisjs/morris.min.js' %}"></script>
+
+    <script>
+    $(document).ready(function () {
+        var wellness_data = {{ wellness|safe }};
+        var choice_data = {{ choice|safe }};
+
+        var choice_keys = Object.keys(choice_data[choice_data.length - 1]);
+
+        console.log(choice_keys)
+        xkey_index = choice_keys.indexOf('col_time');
+
+        if (xkey_index > -1) {
+            choice_keys.splice(xkey_index, 1);
+        };
+
+
+        Morris.Line({
+            element: 'wellness-chart',
+            data: wellness_data,
+            xkey: 'col_time',
+            ykeys: ['score'],
+            labels: ['Wellness'],
+        });
+
+        Morris.Area({
+            element: 'choices-chart',
+            data: choice_data,
+            xkey: 'col_time',
+            ykeys: choice_keys,
+            labels: choice_keys,
+        });
+
+
+
+    });
+    </script>
+{% endblock %}

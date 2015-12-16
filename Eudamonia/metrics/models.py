@@ -1,5 +1,4 @@
 from django.db import models
-#from dashboard import models as dashboard_models
 
 # Create your models here.
 

@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'take-survey/$', views.take_survey, name='take_survey'),
     url(r'take-survey/(?P<survey_id>[0-9]+)/$', views.take_survey, name='take_survey_withid'),
     url(r'take-survey/(?P<survey_id>[0-9]+)/submit/$', views.submit_survey, name='submit_survey'),
-    url(r'graph/$', views.graph_wellness, name='wellness_graph')
+    url(r'graph/$', views.graph_wellness, name='wellness_graph'),
+    url(r'collection_detail/(?P<collection_id>[0-9]+)/$', views.collection_detail, name='collection_detail'),
 ]
