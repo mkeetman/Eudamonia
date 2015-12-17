@@ -1,6 +1,6 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Eudamonia: Dashboard{% endblock %}
 {% block head %}
   <!-- Morris Charts CSS -->
     <link href="{% static 'bower_components/morrisjs/morris.css' %}" rel="stylesheet">
@@ -64,6 +64,7 @@
             xkey: 'col_time',
             ykeys: ['score'],
             labels: ['Wellness'],
+            hideHover: true,
         });
 
         Morris.Area({
@@ -72,10 +73,8 @@
             xkey: 'col_time',
             ykeys: choice_keys,
             labels: choice_keys,
+            hideHover: true,
         });
-
-
-
     });
     </script>
 {% endblock %}
