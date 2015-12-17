@@ -1,6 +1,6 @@
 import json
 import time
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
@@ -64,5 +64,7 @@ def process_registration(request):
 def finish_registration(request):
 
     athlete = Athlete.objects.create(default_survey=Survey.objects.get(pk=request.POST['survey']), user=request.user)
+    athlete.save()
 
-    return "Thanks for registering " + athlete.user.first_name
+    return redirect('index')
+
