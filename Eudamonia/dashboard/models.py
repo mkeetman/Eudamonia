@@ -4,6 +4,15 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
+
+class Coach(models.Model):
+
+    def __str__(self):
+        return self.user.username
+
+    user = models.OneToOneField(User)
+
+
 class Athlete(models.Model):
 
     def __str__(self):
@@ -11,3 +20,4 @@ class Athlete(models.Model):
 
     user = models.OneToOneField(User)
     default_survey = models.ForeignKey('wellness.Survey')
+    coaches = models.ManyToManyField(Coach)
