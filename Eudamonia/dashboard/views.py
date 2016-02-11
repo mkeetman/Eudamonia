@@ -1,6 +1,6 @@
 import json
 import time
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
@@ -13,14 +13,51 @@ from .models import Athlete
 @login_required()
 def index(request):
 
-    collections = Collection.objects.filter(athlete=request.user.athlete).order_by('-date')
+    if not hasattr(request.user, 'coach'):
+        collections = Collection.objects.filter(athlete=request.user.athlete).order_by('date')
+        wellness_data = []
+        choice_data = []
+
+        for collection in collections:
+            score = 0
+
+            row = dict()
+            row['col_time'] = int(time.mktime(collection.date.timetuple())) * 1000
+
+            for answer in collection.answer_set.all():
+                score += answer.choice.choice_value
+                row[answer.choice.question.question_text] = answer.choice.choice_value
+
+            wellness_data.append({'col_time': int(time.mktime(collection.date.timetuple())) * 1000, 'score': score})
+            choice_data.append(row)
+
+        context = {'wellness': json.dumps(wellness_data),
+                   'choice': json.dumps(choice_data)}
+
+        return render(request, 'dashboard/dashboard-home.html', context)
+
+    else:
+        # Is a coach, so load the coach dashboard
+        users = request.user.coach.athlete_set
+
+        return render(request, 'dashboard/coach-home.html', {'users': users})
+
+
+def athlete_detail(request, athlete_id):
+
+    athlete = get_object_or_404(Athlete, id=athlete_id)
+
+    if athlete not in request.user.coach.athlete_set.all():
+        return render(request, 'dashboard/access-denied.html', context={})
+
+    collections = Collection.objects.filter(athlete=athlete).order_by('date')
     wellness_data = []
     choice_data = []
 
     for collection in collections:
         score = 0
 
-        row = {}
+        row = dict()
         row['col_time'] = int(time.mktime(collection.date.timetuple())) * 1000
 
         for answer in collection.answer_set.all():
@@ -30,10 +67,12 @@ def index(request):
         wellness_data.append({'col_time': int(time.mktime(collection.date.timetuple())) * 1000, 'score': score})
         choice_data.append(row)
 
-    context = {'wellness': json.dumps(wellness_data),
-               'choice': json.dumps(choice_data)}
+    users = request.user.coach.athlete_set
 
-    return render(request, 'dashboard/dashboard-home.html', context)
+    return render(request, 'dashboard/athlete-detail.html', {'athlete': athlete,
+                                                             'wellness': json.dumps(wellness_data),
+                                                             'choice': json.dumps(choice_data),
+                                                             'users': users})
 
 
 def user_registration(request):

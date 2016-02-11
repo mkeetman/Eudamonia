@@ -26,4 +26,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^wellness/', include('wellness.urls')),
     url('^accounts/', include('django.contrib.auth.urls')),
+    url(r'^dashboard/', include('dashboard.urls')),
 ]

@@ -65,11 +65,10 @@
                     <li>
                         <a href="{% url 'index' %}"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                     </li>
-
                     <li>
                         <a href="{% url 'wellness:take_survey' %}"><i class="fa fa-tasks fa-fw"></i> Take Survey</a>
                     </li>
-
+                    {% block sidebar-menu %}{% endblock %}
                 </ul>
             </div>
             <!-- /.sidebar-collapse -->
