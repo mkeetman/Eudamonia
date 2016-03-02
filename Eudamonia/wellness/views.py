@@ -67,7 +67,8 @@ def graph_wellness(request):
                'choice_data': choice_data}
     return render(request, 'wellness/wellness_graph.html', context)
 
+
 @login_required()
 def collection_detail(request, collection_id):
     collection = get_object_or_404(Collection, pk=collection_id)
-    pass
+    return render(request, 'wellness/collection_detail.html', {'collection': collection})

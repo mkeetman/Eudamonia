@@ -10,6 +10,7 @@ from .models import Athlete
 
 # Create your views here.
 
+
 @login_required()
 def index(request):
 
